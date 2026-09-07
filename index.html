@@ -300,7 +300,13 @@
       { subject: "Coding", q: "What is an ordered collection of values commonly called in JavaScript?", options: ["Array", "Class", "Boolean", "Selector"], answer: 0 },
       { subject: "Coding", q: "Which HTML element creates a hyperlink?", options: ["<p>", "<a>", "<link>", "<href>"], answer: 1 },
       { subject: "Coding", q: "What does a function do?", options: ["Stores only text", "Groups reusable instructions", "Changes a monitor", "Deletes the browser"], answer: 1 },
-      { subject: "Coding", q: "Which CSS property changes text color?", options: ["font-style", "background", "color", "text-weight"], answer: 2 }
+      { subject: "Coding", q: "Which CSS property changes text color?", options: ["font-style", "background", "color", "text-weight"], answer: 2 },
+      { subject: "VS Code + Python", q: "Which file extension is commonly used for Python files?", options: [".java", ".py", ".html", ".css"], answer: 1 },
+      { subject: "VS Code + Python", q: "Which Python function displays text in the terminal?", options: ["show()", "echo()", "print()", "write()"], answer: 2 },
+      { subject: "VS Code + Python", q: "In VS Code, what does the integrated terminal let you do?", options: ["Run commands without leaving the editor", "Change your monitor brightness", "Design a keyboard", "Browse only offline pages"], answer: 0 },
+      { subject: "VS Code + Python", q: "Which Python symbol starts a single-line comment?", options: ["//", "#", "<!--", "/*"], answer: 1 },
+      { subject: "VS Code + Python", q: "What is a Python virtual environment used for?", options: ["Isolating project packages", "Increasing screen resolution", "Editing images", "Connecting a printer"], answer: 0 },
+      { subject: "VS Code + Python", q: "Which VS Code feature suggests completions while you type?", options: ["IntelliSense", "Recycle Bin", "Taskbar", "AirDrop"], answer: 0 }
     ];
 
     const questionsPerQuiz = 10;
@@ -326,7 +332,7 @@
         seenQuestions.clear();
       }
       const unseen = questionBank.filter(item => !seenQuestions.has(item.q));
-      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding"];
+      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding", "VS Code + Python"];
       const required = subjects.flatMap(subject => questionBank
         .filter(item => item.subject === subject && unseen.includes(item))
         .sort(() => Math.random() - 0.5)
