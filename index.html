@@ -118,6 +118,18 @@
     }
 
     .question { margin: 0 0 22px; font-size: 21px; line-height: 1.3; }
+    .subject {
+      display: inline-block;
+      margin: 0 0 9px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: var(--accent);
+      background: color-mix(in srgb, var(--accent) 12%, transparent);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
     .answers { display: grid; gap: 11px; }
 
     .answer {
@@ -208,6 +220,7 @@
           <div class="progress-fill" id="progress-fill"></div>
         </div>
 
+        <p class="subject" id="subject-label">Science</p>
         <h2 class="question" id="question"></h2>
         <div class="answers" id="answers"></div>
         <p class="feedback" id="feedback" role="status"></p>
@@ -227,19 +240,41 @@
   </main>
 
   <script>
-    const questions = [
-      { q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Mercury"], answer: 1 },
-      { q: "What is the name of our galaxy?", options: ["Andromeda", "Sombrero", "Milky Way", "Whirlpool"], answer: 2 },
-      { q: "Which star is closest to Earth?", options: ["Sirius", "Polaris", "Alpha Centauri", "The Sun"], answer: 3 },
-      { q: "How many moons does Earth have?", options: ["One", "Two", "Four", "None"], answer: 0 },
-      { q: "What is the largest planet in our solar system?", options: ["Saturn", "Neptune", "Jupiter", "Uranus"], answer: 2 },
-      { q: "What force keeps planets in orbit around the Sun?", options: ["Magnetism", "Gravity", "Friction", "Light"], answer: 1 },
-      { q: "What was the first human-made satellite?", options: ["Apollo 11", "Hubble", "Sputnik 1", "Voyager 1"], answer: 2 },
-      { q: "Which planet has the most prominent ring system?", options: ["Saturn", "Mars", "Earth", "Venus"], answer: 0 },
-      { q: "What is a light-year a measurement of?", options: ["Time", "Brightness", "Distance", "Mass"], answer: 2 },
-      { q: "What do astronauts wear during a spacewalk?", options: ["A flight suit", "A spacesuit", "A pressure vest", "A heat cloak"], answer: 1 }
+    const questionBank = [
+      { subject: "Science", q: "Which organ pumps blood through the body?", options: ["Lung", "Heart", "Kidney", "Brain"], answer: 1 },
+      { subject: "Science", q: "What force pulls objects toward Earth?", options: ["Friction", "Gravity", "Magnetism", "Pressure"], answer: 1 },
+      { subject: "Science", q: "What gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], answer: 2 },
+      { subject: "Science", q: "What is the closest star to Earth?", options: ["Sirius", "The Sun", "Polaris", "Betelgeuse"], answer: 1 },
+      { subject: "Science", q: "Which state of matter has a fixed volume but no fixed shape?", options: ["Solid", "Liquid", "Gas", "Plasma"], answer: 1 },
+      { subject: "Science", q: "What is the basic unit of life?", options: ["Atom", "Cell", "Tissue", "Organ"], answer: 1 },
+      { subject: "Physics", q: "What is the unit of electric current?", options: ["Volt", "Watt", "Ampere", "Ohm"], answer: 2 },
+      { subject: "Physics", q: "What happens to an object when the net force on it is zero?", options: ["It must speed up", "It remains at rest or constant velocity", "It disappears", "It reverses direction"], answer: 1 },
+      { subject: "Physics", q: "What type of energy does a moving object have?", options: ["Potential", "Kinetic", "Chemical", "Thermal"], answer: 1 },
+      { subject: "Math", q: "What is 12 × 8?", options: ["86", "96", "108", "112"], answer: 1 },
+      { subject: "Math", q: "What is the square root of 81?", options: ["7", "8", "9", "10"], answer: 2 },
+      { subject: "Math", q: "What is 25% of 80?", options: ["15", "20", "25", "30"], answer: 1 },
+      { subject: "Math", q: "How many degrees are in a right angle?", options: ["45", "90", "180", "360"], answer: 1 },
+      { subject: "Math", q: "What is the next prime number after 7?", options: ["8", "9", "10", "11"], answer: 3 },
+      { subject: "Math", q: "If a triangle has angles 60° and 70°, what is the third angle?", options: ["40°", "50°", "60°", "70°"], answer: 1 },
+      { subject: "Chemistry", q: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], answer: 2 },
+      { subject: "Chemistry", q: "What is the pH of a neutral substance?", options: ["0", "5", "7", "14"], answer: 2 },
+      { subject: "Chemistry", q: "What is H₂O commonly known as?", options: ["Hydrogen peroxide", "Water", "Oxygen", "Salt"], answer: 1 },
+      { subject: "Geography", q: "What is the largest ocean on Earth?", options: ["Atlantic", "Indian", "Pacific", "Arctic"], answer: 2 },
+      { subject: "Geography", q: "What is the capital city of Japan?", options: ["Kyoto", "Seoul", "Tokyo", "Beijing"], answer: 2 },
+      { subject: "Geography", q: "Which continent is the Sahara Desert in?", options: ["Asia", "Africa", "Australia", "South America"], answer: 1 },
+      { subject: "Geography", q: "What is the longest river in South America?", options: ["Nile", "Amazon", "Yangtze", "Mississippi"], answer: 1 },
+      { subject: "Geography", q: "Which country is shaped like a boot?", options: ["Greece", "Italy", "Portugal", "Chile"], answer: 1 },
+      { subject: "Geography", q: "Mount Everest is part of which mountain range?", options: ["Andes", "Alps", "Himalayas", "Rockies"], answer: 2 },
+      { subject: "Coding", q: "Which symbol starts a single-line comment in JavaScript?", options: ["//", "<!--", "#", "**"], answer: 0 },
+      { subject: "Coding", q: "Which data type stores true or false?", options: ["String", "Boolean", "Array", "Number"], answer: 1 },
+      { subject: "Coding", q: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Logic", "Hyperlink Text Main Language", "Home Tool Markup Language"], answer: 0 },
+      { subject: "Coding", q: "Which keyword declares a constant in JavaScript?", options: ["let", "var", "const", "fixed"], answer: 2 },
+      { subject: "Coding", q: "What does CSS primarily control?", options: ["Database storage", "Page styling", "Server security", "User passwords"], answer: 1 },
+      { subject: "Coding", q: "Which structure repeats code while a condition is true?", options: ["Loop", "Variable", "Comment", "Selector"], answer: 0 }
     ];
 
+    const questionsPerQuiz = 10;
+    let questions = [];
     let current = 0;
     let score = 0;
     let locked = false;
@@ -251,15 +286,33 @@
     const scoreEl = document.getElementById("score-count");
     const countEl = document.getElementById("question-count");
     const progressEl = document.getElementById("progress-fill");
+    const subjectEl = document.getElementById("subject-label");
     const quizView = document.getElementById("quiz-view");
     const resultsView = document.getElementById("results-view");
+
+    function startNewQuiz() {
+      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding"];
+      const required = subjects.flatMap(subject => questionBank
+        .filter(item => item.subject === subject)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 1));
+      const extras = questionBank
+        .filter(item => !required.includes(item))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, questionsPerQuiz - required.length);
+      questions = [...required, ...extras].sort(() => Math.random() - 0.5);
+      current = 0;
+      score = 0;
+      renderQuestion();
+    }
 
     function renderQuestion() {
       locked = false;
       const item = questions[current];
-      countEl.textContent = `Question ${current + 1} of ${questions.length}`;
+      countEl.textContent = `Question ${current + 1} of ${questionsPerQuiz}`;
       scoreEl.textContent = `Score: ${score}`;
-      progressEl.style.width = `${((current + 1) / questions.length) * 100}%`;
+      progressEl.style.width = `${((current + 1) / questionsPerQuiz) * 100}%`;
+      subjectEl.textContent = item.subject;
       questionEl.textContent = item.q;
       answersEl.innerHTML = "";
       feedbackEl.textContent = "";
@@ -301,7 +354,7 @@
     function showResults() {
       quizView.classList.add("hidden");
       resultsView.classList.remove("hidden");
-      document.getElementById("final-score").textContent = `${score} / ${questions.length}`;
+      document.getElementById("final-score").textContent = `${score} / ${questionsPerQuiz}`;
       const emoji = score >= 9 ? "🌟" : score >= 6 ? "🚀" : score >= 3 ? "🪐" : "🌙";
       const title = score >= 9 ? "Out-of-this-world!" : score >= 6 ? "Stellar work!" : score >= 3 ? "Nice orbit!" : "Keep exploring!";
       const copy = score >= 9 ? "You’re ready to chart the unknown. The cosmos salutes you." : score >= 6 ? "A strong flight path! A little more stargazing and you’ll be unstoppable." : "Every explorer starts with a first launch. Try again and discover more.";
@@ -316,14 +369,12 @@
     });
 
     document.getElementById("restart-button").addEventListener("click", () => {
-      current = 0;
-      score = 0;
       resultsView.classList.add("hidden");
       quizView.classList.remove("hidden");
-      renderQuestion();
+      startNewQuiz();
     });
 
-    renderQuestion();
+    startNewQuiz();
   </script>
 </body>
 </html>
