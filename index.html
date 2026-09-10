@@ -242,6 +242,12 @@
   <script>
     const questionBank = [
       { subject: "Science", q: "Which organ pumps blood through the body?", options: ["Lung", "Heart", "Kidney", "Brain"], answer: 1 },
+      { subject: "Space", q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Mercury"], answer: 1 },
+      { subject: "Space", q: "What is the name of our galaxy?", options: ["Andromeda", "Milky Way", "Sombrero", "Whirlpool"], answer: 1 },
+      { subject: "Space", q: "Which star is closest to Earth?", options: ["Sirius", "Polaris", "The Sun", "Alpha Centauri"], answer: 2 },
+      { subject: "Space", q: "What force keeps planets in orbit around the Sun?", options: ["Friction", "Gravity", "Magnetism", "Light"], answer: 1 },
+      { subject: "Space", q: "Which is the largest planet in our solar system?", options: ["Saturn", "Neptune", "Jupiter", "Uranus"], answer: 2 },
+      { subject: "Space", q: "What is a light-year a measurement of?", options: ["Time", "Brightness", "Distance", "Mass"], answer: 2 },
       { subject: "Science", q: "What force pulls objects toward Earth?", options: ["Friction", "Gravity", "Magnetism", "Pressure"], answer: 1 },
       { subject: "Science", q: "What gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], answer: 2 },
       { subject: "Science", q: "What is the closest star to Earth?", options: ["Sirius", "The Sun", "Polaris", "Betelgeuse"], answer: 1 },
@@ -332,7 +338,7 @@
         seenQuestions.clear();
       }
       const unseen = questionBank.filter(item => !seenQuestions.has(item.q));
-      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding", "VS Code + Python"];
+      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding", "VS Code + Python", "Space"];
       const required = subjects.flatMap(subject => questionBank
         .filter(item => item.subject === subject && unseen.includes(item))
         .sort(() => Math.random() - 0.5)
