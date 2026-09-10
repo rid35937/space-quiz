@@ -1,428 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>The Quiz for Smart People</title>
   <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #eef4ff;
-      --card: rgba(255, 255, 255, 0.82);
-      --ink: #15213c;
-      --muted: #66718d;
-      --line: #dce4f5;
-      --accent: #6d4aff;
-      --accent-dark: #5130e6;
-      --correct: #159b6b;
-      --correct-bg: #dff8ed;
-      --wrong: #e05272;
-      --wrong-bg: #ffe4eb;
-      --shadow: 0 24px 70px rgba(67, 75, 130, 0.17);
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #0e1428;
-        --card: rgba(24, 32, 60, 0.86);
-        --ink: #f4f7ff;
-        --muted: #a7b0ce;
-        --line: #313b60;
-        --accent: #9b83ff;
-        --accent-dark: #b2a0ff;
-        --correct: #48d69b;
-        --correct-bg: #163e38;
-        --wrong: #ff7e99;
-        --wrong-bg: #482339;
-        --shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
-      }
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 28px 16px;
-      color: var(--ink);
-      background:
-        radial-gradient(circle at 15% 15%, rgba(144, 191, 255, .55), transparent 30%),
-        radial-gradient(circle at 88% 85%, rgba(215, 155, 255, .38), transparent 32%),
-        var(--bg);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .app { width: min(100%, 500px); }
-    .quiz-card {
-      position: relative;
-      overflow: hidden;
-      padding: 30px;
-      border: 1px solid rgba(255,255,255,.6);
-      border-radius: 28px;
-      background: var(--card);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-
-    .quiz-card::before {
-      content: "✦";
-      position: absolute;
-      top: 12px;
-      right: 24px;
-      color: #ffc857;
-      font-size: 25px;
-      transform: rotate(18deg);
-    }
-
-    .eyebrow {
-      margin: 0 0 4px;
-      color: var(--accent);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: .13em;
-      text-transform: uppercase;
-    }
-
-    h1, h2 { margin: 0; line-height: 1.15; letter-spacing: -.035em; }
-    h1 { font-size: clamp(28px, 7vw, 36px); }
-    h2 { font-size: clamp(24px, 6vw, 31px); }
-    .subtitle { margin: 10px 0 24px; color: var(--muted); }
-
-    .progress-meta {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .progress-track {
-      height: 9px;
-      overflow: hidden;
-      margin-bottom: 30px;
-      border-radius: 999px;
-      background: var(--line);
-    }
-
-    .progress-fill {
-      width: 10%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #7b61ff, #ec7cf4);
-      transition: width .45s ease;
-    }
-
-    .question { margin: 0 0 22px; font-size: 21px; line-height: 1.3; }
-    .subject {
-      display: inline-block;
-      margin: 0 0 9px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 12%, transparent);
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-    }
-    .answers { display: grid; gap: 11px; }
-
-    .answer {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 15px;
-      color: var(--ink);
-      background: transparent;
-      font: inherit;
-      text-align: left;
-      cursor: pointer;
-      transition: transform .18s ease, border-color .18s ease, background .18s ease;
-    }
-
-    .answer:hover:not(:disabled) {
-      border-color: var(--accent);
-      background: color-mix(in srgb, var(--accent) 8%, transparent);
-      transform: translateY(-2px);
-    }
-
-    .answer:focus-visible, .button:focus-visible {
-      outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent);
-      outline-offset: 3px;
-    }
-
-    .answer.correct { border-color: var(--correct); background: var(--correct-bg); color: var(--correct); font-weight: 700; }
-    .answer.wrong { border-color: var(--wrong); background: var(--wrong-bg); color: var(--wrong); font-weight: 700; }
-    .shake { animation: shake .42s ease; }
-    @keyframes shake {
-      20%, 60% { transform: translateX(-7px); }
-      40%, 80% { transform: translateX(7px); }
-    }
-
-    .feedback {
-      min-height: 27px;
-      margin: 17px 0 0;
-      font-weight: 700;
-      text-align: center;
-    }
-    .feedback.correct { color: var(--correct); }
-    .feedback.wrong { color: var(--wrong); }
-
-    .button {
-      width: 100%;
-      margin-top: 20px;
-      padding: 14px 18px;
-      border: 0;
-      border-radius: 14px;
-      color: white;
-      background: linear-gradient(135deg, var(--accent), #a55cff);
-      box-shadow: 0 10px 22px rgba(109, 74, 255, .25);
-      font: inherit;
-      font-weight: 800;
-      cursor: pointer;
-      transition: transform .18s ease, filter .18s ease;
-    }
-    .button:hover { filter: brightness(1.08); transform: translateY(-2px); }
-    .hidden { display: none; }
-
-    .results { padding: 18px 0 2px; text-align: center; }
-    .emoji { display: block; margin: 18px 0 10px; font-size: 72px; animation: float 3s ease-in-out infinite; }
-    @keyframes float { 50% { transform: translateY(-8px) rotate(2deg); } }
-    .score {
-      margin: 22px 0 5px;
-      color: var(--accent);
-      font-size: 44px;
-      font-weight: 900;
-      letter-spacing: -.06em;
-    }
-    .result-copy { margin: 0 auto; max-width: 330px; color: var(--muted); }
-    .footer-note { margin: 18px 0 0; color: var(--muted); font-size: 12px; text-align: center; }
+    :root{color-scheme:light dark;--bg:#f3f5ff;--card:#fff;--ink:#17213b;--muted:#68738e;--line:#e2e6f4;--accent:#6750e8;--accent2:#ed77bd;--good:#159b6b;--bad:#df5274;--shadow:0 18px 55px #38468b22}
+    @media(prefers-color-scheme:dark){:root{--bg:#10152b;--card:#1d2544;--ink:#f5f6ff;--muted:#adb5d2;--line:#343d61;--accent:#a796ff;--accent2:#f18cce;--shadow:0 18px 55px #0005}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at 10% 0,#a9c9ff80,transparent 30%),radial-gradient(circle at 95% 100%,#f2a9e260,transparent 34%),var(--bg);color:var(--ink);font:15px/1.5 Inter,ui-sans-serif,system-ui,sans-serif}
+    .shell{width:min(100% - 28px,920px);margin:auto;padding:25px 0 45px}.top{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-bottom:25px}.brand{display:flex;align-items:center;gap:10px;color:var(--ink);font-weight:900;font-size:20px;letter-spacing:-.04em}.logo{display:grid;place-items:center;width:38px;height:38px;border-radius:13px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:21px}
+    nav{display:flex;gap:5px;padding:5px;border:1px solid var(--line);border-radius:14px;background:var(--card)}nav button{border:0;border-radius:10px;padding:9px 13px;color:var(--muted);background:transparent;font:inherit;font-weight:750;cursor:pointer}nav button.active,nav button:hover{color:var(--ink);background:color-mix(in srgb,var(--accent) 14%,transparent)}
+    .panel{padding:clamp(23px,5vw,42px);border:1px solid #ffffff80;border-radius:28px;background:color-mix(in srgb,var(--card) 90%,transparent);box-shadow:var(--shadow);backdrop-filter:blur(16px)}.view{display:none}.view.active{display:block}.eyebrow{margin:0 0 7px;color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}h1,h2,h3{margin:0;line-height:1.12;letter-spacing:-.04em}h1{font-size:clamp(32px,7vw,58px);max-width:680px}h2{font-size:clamp(25px,5vw,35px)}h3{font-size:18px}.lead{max-width:610px;margin:14px 0 25px;color:var(--muted);font-size:17px}.button{border:0;border-radius:13px;padding:13px 18px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:0 10px 24px #6750e844;font:inherit;font-weight:850;cursor:pointer}.button.secondary{color:var(--ink);background:var(--line);box-shadow:none}.button:focus-visible,nav button:focus-visible,.choice:focus-visible{outline:3px solid #6750e866;outline-offset:3px}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:28px}.stat,.category,.fact,.level{padding:16px;border:1px solid var(--line);border-radius:17px;background:color-mix(in srgb,var(--card) 72%,transparent)}.stat strong{display:block;color:var(--accent);font-size:24px}.stat span{color:var(--muted);font-size:12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-top:20px}.category,.level{cursor:pointer;transition:.18s transform,.18s border-color}.category:hover,.level:hover{border-color:var(--accent);transform:translateY(-3px)}.category .icon{font-size:28px}.category p,.fact p,.level p{margin:6px 0 0;color:var(--muted);font-size:13px}.category.selected,.level.selected{border:2px solid var(--accent);padding:15px;background:color-mix(in srgb,var(--accent) 9%,var(--card))}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:15px;margin-bottom:18px}.section-head p{margin:5px 0 0;color:var(--muted)}.facts{display:grid;gap:12px;margin-top:20px}.fact{display:flex;gap:14px}.fact b{color:var(--accent)}.fact strong{display:block}.quiz-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;color:var(--muted);font-size:13px;font-weight:750}.track{height:8px;margin-bottom:28px;border-radius:9px;background:var(--line);overflow:hidden}.fill{height:100%;width:10%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:.3s}.tag{display:inline-block;margin-bottom:10px;padding:5px 10px;border-radius:99px;color:var(--accent);background:#6750e81a;font-size:11px;font-weight:900;text-transform:uppercase}.question{font-size:clamp(23px,5vw,32px);margin-bottom:20px}.choices{display:grid;gap:10px}.choice{padding:14px 16px;border:1px solid var(--line);border-radius:14px;color:var(--ink);background:transparent;font:inherit;text-align:left;cursor:pointer}.choice:hover:not(:disabled){border-color:var(--accent);background:#6750e812}.choice.correct{border-color:var(--good);background:#159b6b1c;color:var(--good);font-weight:800}.choice.wrong{border-color:var(--bad);background:#df52741c;color:var(--bad);font-weight:800}.feedback{min-height:25px;margin:15px 0 0;font-weight:800}.feedback.good{color:var(--good)}.feedback.bad{color:var(--bad)}.quiz-actions{display:flex;gap:10px;justify-content:end}.quiz-actions .button{margin-top:15px}.reward{text-align:center}.reward-icon{font-size:72px;margin:15px 0;display:block}.badge{display:inline-block;margin:7px;padding:8px 12px;border-radius:99px;background:#ffc85733;font-weight:800}.empty{color:var(--muted)}
+    @media(max-width:600px){.top{align-items:flex-start;flex-direction:column}.top nav{width:100%;justify-content:space-between}.top nav button{flex:1;padding:8px 5px}.stats{grid-template-columns:1fr}.section-head{display:block}}
   </style>
 </head>
 <body>
-  <main class="app">
-    <section class="quiz-card" aria-live="polite">
-      <div id="quiz-view">
-        <p class="eyebrow">The Quiz for Smart People</p>
-        <h1>How smart are you?</h1>
-        <p class="subtitle">Ten quick questions for curious minds. Trust your instincts, astronaut.</p>
+  <main class="shell">
+    <header class="top"><a class="brand" href="#home" data-tab="home"><span class="logo">✦</span>The Quiz for Smart People</a><nav aria-label="Main navigation"><button data-tab="home" class="active">Home</button><button data-tab="learn">Learn facts</button><button data-tab="quiz">Take quiz</button><button data-tab="rewards">Rewards</button></nav></header>
 
-        <div class="progress-meta">
-          <span id="question-count">Question 1 of 10</span>
-          <span id="score-count">Score: 0</span>
-        </div>
-        <div class="progress-track" aria-label="Quiz progress">
-          <div class="progress-fill" id="progress-fill"></div>
-        </div>
-
-        <p class="subject" id="subject-label">Science</p>
-        <h2 class="question" id="question"></h2>
-        <div class="answers" id="answers"></div>
-        <p class="feedback" id="feedback" role="status"></p>
-        <button class="button hidden" id="next-button" type="button">Next mission →</button>
-      </div>
-
-      <div class="results hidden" id="results-view">
-        <p class="eyebrow">Mission complete</p>
-        <span class="emoji" id="result-emoji" aria-hidden="true">🚀</span>
-        <h2 id="result-title">Stellar work!</h2>
-        <div class="score" id="final-score">0 / 10</div>
-        <p class="result-copy" id="result-copy"></p>
-        <button class="button" id="restart-button" type="button">Explore again ↻</button>
-      </div>
+    <section id="home" class="panel view active">
+      <p class="eyebrow">Think. Learn. Level up.</p><h1>Curiosity is your superpower.</h1><p class="lead">Explore smart facts, choose your subject, and take a quiz that gets more challenging as you grow. Every completed level earns a reward.</p><button class="button" data-tab="learn">Start exploring →</button>
+      <div class="stats"><div class="stat"><strong>8</strong><span>Subjects to explore</span></div><div class="stat"><strong>3</strong><span>Difficulty levels</span></div><div class="stat"><strong>🏆</strong><span>Rewards to unlock</span></div></div>
     </section>
-    <p class="footer-note">A tiny voyage through the universe · no engines required</p>
+
+    <section id="learn" class="panel view">
+      <div class="section-head"><div><p class="eyebrow">Knowledge lab</p><h2>Learn the facts first</h2><p>Select a category for quick facts and a launch point for its quiz.</p></div></div>
+      <div id="category-grid" class="grid"></div><div id="facts" class="facts"></div><button class="button" data-tab="quiz">Quiz this subject →</button>
+    </section>
+
+    <section id="quiz" class="panel view">
+      <div id="setup"><p class="eyebrow">Choose your challenge</p><h2>Pick a subject and level</h2><div id="quiz-categories" class="grid"></div><div id="levels" class="grid"></div><button class="button" id="begin">Begin quiz →</button></div>
+      <div id="quiz-play" class="hidden"><div class="quiz-head"><span id="counter"></span><span id="quiz-score"></span></div><div class="track"><div class="fill" id="fill"></div></div><span class="tag" id="quiz-subject"></span><h2 class="question" id="question"></h2><div class="choices" id="choices"></div><p class="feedback" id="feedback"></p><div class="quiz-actions"><button class="button hidden" id="next">Next question →</button></div></div>
+      <div id="result" class="hidden reward"><span class="reward-icon" id="result-icon">🏆</span><p class="eyebrow">Level complete</p><h2 id="result-title"></h2><p id="result-copy" class="lead"></p><button class="button" id="again">Try another level →</button></div>
+    </section>
+
+    <section id="rewards" class="panel view"><p class="eyebrow">Your progress</p><h2>Rewards cabinet</h2><p class="lead">Complete quizzes to collect badges. Your progress is saved in this browser.</p><div id="badge-list"></div></section>
   </main>
-
   <script>
-    const questionBank = [
-      { subject: "Science", q: "Which organ pumps blood through the body?", options: ["Lung", "Heart", "Kidney", "Brain"], answer: 1 },
-      { subject: "Space", q: "Which planet is known as the Red Planet?", options: ["Venus", "Mars", "Jupiter", "Mercury"], answer: 1 },
-      { subject: "Space", q: "What is the name of our galaxy?", options: ["Andromeda", "Milky Way", "Sombrero", "Whirlpool"], answer: 1 },
-      { subject: "Space", q: "Which star is closest to Earth?", options: ["Sirius", "Polaris", "The Sun", "Alpha Centauri"], answer: 2 },
-      { subject: "Space", q: "What force keeps planets in orbit around the Sun?", options: ["Friction", "Gravity", "Magnetism", "Light"], answer: 1 },
-      { subject: "Space", q: "Which is the largest planet in our solar system?", options: ["Saturn", "Neptune", "Jupiter", "Uranus"], answer: 2 },
-      { subject: "Space", q: "What is a light-year a measurement of?", options: ["Time", "Brightness", "Distance", "Mass"], answer: 2 },
-      { subject: "Science", q: "What force pulls objects toward Earth?", options: ["Friction", "Gravity", "Magnetism", "Pressure"], answer: 1 },
-      { subject: "Science", q: "What gas do plants absorb during photosynthesis?", options: ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"], answer: 2 },
-      { subject: "Science", q: "What is the closest star to Earth?", options: ["Sirius", "The Sun", "Polaris", "Betelgeuse"], answer: 1 },
-      { subject: "Science", q: "Which state of matter has a fixed volume but no fixed shape?", options: ["Solid", "Liquid", "Gas", "Plasma"], answer: 1 },
-      { subject: "Science", q: "What is the basic unit of life?", options: ["Atom", "Cell", "Tissue", "Organ"], answer: 1 },
-      { subject: "Science", q: "Which vitamin is produced when skin is exposed to sunlight?", options: ["Vitamin A", "Vitamin C", "Vitamin D", "Vitamin K"], answer: 2 },
-      { subject: "Science", q: "What part of a plant carries water from roots to leaves?", options: ["Phloem", "Xylem", "Petal", "Stamen"], answer: 1 },
-      { subject: "Science", q: "Which blood cells help fight infection?", options: ["Red blood cells", "White blood cells", "Platelets", "Plasma cells"], answer: 1 },
-      { subject: "Science", q: "What is the process by which a caterpillar becomes a butterfly?", options: ["Germination", "Metamorphosis", "Evaporation", "Pollination"], answer: 1 },
-      { subject: "Science", q: "Which sense organ detects sound?", options: ["Eye", "Ear", "Nose", "Skin"], answer: 1 },
-      { subject: "Physics", q: "What is the unit of electric current?", options: ["Volt", "Watt", "Ampere", "Ohm"], answer: 2 },
-      { subject: "Physics", q: "What happens to an object when the net force on it is zero?", options: ["It must speed up", "It remains at rest or constant velocity", "It disappears", "It reverses direction"], answer: 1 },
-      { subject: "Physics", q: "What type of energy does a moving object have?", options: ["Potential", "Kinetic", "Chemical", "Thermal"], answer: 1 },
-      { subject: "Physics", q: "What is the speed of light fastest through?", options: ["Glass", "Water", "Air", "A vacuum"], answer: 3 },
-      { subject: "Physics", q: "Which simple machine is a ramp?", options: ["Pulley", "Inclined plane", "Lever", "Wheel and axle"], answer: 1 },
-      { subject: "Physics", q: "What happens to the wavelength of a wave when its frequency increases?", options: ["It increases", "It decreases", "It stays exactly the same", "It becomes zero"], answer: 1 },
-      { subject: "Physics", q: "Which form of heat transfer travels through empty space?", options: ["Conduction", "Convection", "Radiation", "Insulation"], answer: 2 },
-      { subject: "Physics", q: "What instrument measures temperature?", options: ["Barometer", "Thermometer", "Ammeter", "Seismometer"], answer: 1 },
-      { subject: "Math", q: "What is 12 × 8?", options: ["86", "96", "108", "112"], answer: 1 },
-      { subject: "Math", q: "What is the square root of 81?", options: ["7", "8", "9", "10"], answer: 2 },
-      { subject: "Math", q: "What is 25% of 80?", options: ["15", "20", "25", "30"], answer: 1 },
-      { subject: "Math", q: "How many degrees are in a right angle?", options: ["45", "90", "180", "360"], answer: 1 },
-      { subject: "Math", q: "What is the next prime number after 7?", options: ["8", "9", "10", "11"], answer: 3 },
-      { subject: "Math", q: "If a triangle has angles 60° and 70°, what is the third angle?", options: ["40°", "50°", "60°", "70°"], answer: 1 },
-      { subject: "Math", q: "What is 3/4 written as a decimal?", options: ["0.25", "0.34", "0.75", "1.25"], answer: 2 },
-      { subject: "Math", q: "What is the perimeter of a square with sides of 6 cm?", options: ["12 cm", "18 cm", "24 cm", "36 cm"], answer: 2 },
-      { subject: "Math", q: "What is 2 to the power of 5?", options: ["10", "16", "25", "32"], answer: 3 },
-      { subject: "Math", q: "What is the median of 3, 8, and 10?", options: ["3", "7", "8", "10"], answer: 2 },
-      { subject: "Math", q: "A dozen contains how many items?", options: ["10", "12", "13", "24"], answer: 1 },
-      { subject: "Chemistry", q: "What is the chemical symbol for gold?", options: ["Go", "Gd", "Au", "Ag"], answer: 2 },
-      { subject: "Chemistry", q: "What is the pH of a neutral substance?", options: ["0", "5", "7", "14"], answer: 2 },
-      { subject: "Chemistry", q: "What is H₂O commonly known as?", options: ["Hydrogen peroxide", "Water", "Oxygen", "Salt"], answer: 1 },
-      { subject: "Chemistry", q: "Which gas is needed for most fires to burn?", options: ["Oxygen", "Helium", "Carbon dioxide", "Neon"], answer: 0 },
-      { subject: "Chemistry", q: "What is the smallest unit of an element?", options: ["Molecule", "Atom", "Compound", "Crystal"], answer: 1 },
-      { subject: "Chemistry", q: "A substance with a pH below 7 is called what?", options: ["An acid", "A base", "A salt", "A metal"], answer: 0 },
-      { subject: "Chemistry", q: "Which state of matter has particles spread far apart?", options: ["Solid", "Liquid", "Gas", "Crystal"], answer: 2 },
-      { subject: "Chemistry", q: "What is table salt's chemical formula?", options: ["CO₂", "NaCl", "H₂O", "O₂"], answer: 1 },
-      { subject: "Geography", q: "What is the largest ocean on Earth?", options: ["Atlantic", "Indian", "Pacific", "Arctic"], answer: 2 },
-      { subject: "Geography", q: "What is the capital city of Japan?", options: ["Kyoto", "Seoul", "Tokyo", "Beijing"], answer: 2 },
-      { subject: "Geography", q: "Which continent is the Sahara Desert in?", options: ["Asia", "Africa", "Australia", "South America"], answer: 1 },
-      { subject: "Geography", q: "What is the longest river in South America?", options: ["Nile", "Amazon", "Yangtze", "Mississippi"], answer: 1 },
-      { subject: "Geography", q: "Which country is shaped like a boot?", options: ["Greece", "Italy", "Portugal", "Chile"], answer: 1 },
-      { subject: "Geography", q: "Mount Everest is part of which mountain range?", options: ["Andes", "Alps", "Himalayas", "Rockies"], answer: 2 },
-      { subject: "Geography", q: "Which country has the most people in the world?", options: ["India", "Brazil", "United States", "Russia"], answer: 0 },
-      { subject: "Geography", q: "What imaginary line divides Earth into Northern and Southern Hemispheres?", options: ["Prime Meridian", "Equator", "Tropic of Cancer", "International Date Line"], answer: 1 },
-      { subject: "Geography", q: "Which is the smallest continent by land area?", options: ["Europe", "Antarctica", "Australia", "South America"], answer: 2 },
-      { subject: "Geography", q: "What is the capital of Canada?", options: ["Toronto", "Vancouver", "Montreal", "Ottawa"], answer: 3 },
-      { subject: "Geography", q: "The Nile River flows into which sea?", options: ["Red Sea", "Mediterranean Sea", "Arabian Sea", "Black Sea"], answer: 1 },
-      { subject: "Coding", q: "What is a step-by-step set of instructions for solving a problem called?", options: ["An algorithm", "A monitor", "A folder", "A pixel"], answer: 0 },
-      { subject: "Coding", q: "Which data type stores true or false?", options: ["String", "Boolean", "Array", "Number"], answer: 1 },
-      { subject: "Coding", q: "What does HTML stand for?", options: ["HyperText Markup Language", "HighText Machine Logic", "Hyperlink Text Main Language", "Home Tool Markup Language"], answer: 0 },
-      { subject: "Coding", q: "What stores a value so a program can use it later?", options: ["A variable", "A comment", "A keyboard", "A browser tab"], answer: 0 },
-      { subject: "Coding", q: "What does CSS primarily control?", options: ["Database storage", "Page styling", "Server security", "User passwords"], answer: 1 },
-      { subject: "Coding", q: "Which structure repeats code while a condition is true?", options: ["Loop", "Variable", "Comment", "Selector"], answer: 0 },
-      { subject: "Coding", q: "What does debugging mean?", options: ["Finding and fixing program errors", "Designing a logo", "Installing a monitor", "Deleting every file"], answer: 0 },
-      { subject: "Coding", q: "What is an ordered collection of values commonly called?", options: ["A list", "A comment", "A compiler", "A pixel"], answer: 0 },
-      { subject: "Coding", q: "Which HTML element creates a hyperlink?", options: ["<p>", "<a>", "<link>", "<href>"], answer: 1 },
-      { subject: "Coding", q: "What does a function do?", options: ["Stores only text", "Groups reusable instructions", "Changes a monitor", "Deletes the browser"], answer: 1 },
-      { subject: "Coding", q: "Which CSS property changes text color?", options: ["font-style", "background", "color", "text-weight"], answer: 2 },
-      { subject: "VS Code + Python", q: "Which file extension is commonly used for Python files?", options: [".java", ".py", ".html", ".css"], answer: 1 },
-      { subject: "VS Code + Python", q: "Which Python function displays text in the terminal?", options: ["show()", "echo()", "print()", "write()"], answer: 2 },
-      { subject: "VS Code + Python", q: "In VS Code, what does the integrated terminal let you do?", options: ["Run commands without leaving the editor", "Change your monitor brightness", "Design a keyboard", "Browse only offline pages"], answer: 0 },
-      { subject: "VS Code + Python", q: "Which Python symbol starts a single-line comment?", options: ["//", "#", "<!--", "/*"], answer: 1 },
-      { subject: "VS Code + Python", q: "What is a Python virtual environment used for?", options: ["Isolating project packages", "Increasing screen resolution", "Editing images", "Connecting a printer"], answer: 0 },
-      { subject: "VS Code + Python", q: "Which VS Code feature suggests completions while you type?", options: ["IntelliSense", "Recycle Bin", "Taskbar", "AirDrop"], answer: 0 }
-    ];
-
-    const questionsPerQuiz = 10;
-    let questions = [];
-    let seenQuestions = new Set();
-    let current = 0;
-    let score = 0;
-    let locked = false;
-
-    const questionEl = document.getElementById("question");
-    const answersEl = document.getElementById("answers");
-    const feedbackEl = document.getElementById("feedback");
-    const nextButton = document.getElementById("next-button");
-    const scoreEl = document.getElementById("score-count");
-    const countEl = document.getElementById("question-count");
-    const progressEl = document.getElementById("progress-fill");
-    const subjectEl = document.getElementById("subject-label");
-    const quizView = document.getElementById("quiz-view");
-    const resultsView = document.getElementById("results-view");
-
-    function startNewQuiz() {
-      if (questionBank.length - seenQuestions.size < questionsPerQuiz) {
-        seenQuestions.clear();
-      }
-      const unseen = questionBank.filter(item => !seenQuestions.has(item.q));
-      const subjects = ["Science", "Physics", "Chemistry", "Math", "Geography", "Coding", "VS Code + Python", "Space"];
-      const required = subjects.flatMap(subject => questionBank
-        .filter(item => item.subject === subject && unseen.includes(item))
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 1));
-      const extras = unseen
-        .filter(item => !required.includes(item))
-        .sort(() => Math.random() - 0.5)
-        .slice(0, questionsPerQuiz - required.length);
-      questions = [...required, ...extras].sort(() => Math.random() - 0.5);
-      questions.forEach(item => seenQuestions.add(item.q));
-      current = 0;
-      score = 0;
-      renderQuestion();
-    }
-
-    function renderQuestion() {
-      locked = false;
-      const item = questions[current];
-      countEl.textContent = `Question ${current + 1} of ${questionsPerQuiz}`;
-      scoreEl.textContent = `Score: ${score}`;
-      progressEl.style.width = `${((current + 1) / questionsPerQuiz) * 100}%`;
-      subjectEl.textContent = item.subject;
-      questionEl.textContent = item.q;
-      answersEl.innerHTML = "";
-      feedbackEl.textContent = "";
-      feedbackEl.className = "feedback";
-      nextButton.classList.add("hidden");
-
-      item.options.forEach((option, index) => {
-        const button = document.createElement("button");
-        button.className = "answer";
-        button.type = "button";
-        button.textContent = option;
-        button.addEventListener("click", () => chooseAnswer(index, button));
-        answersEl.appendChild(button);
-      });
-    }
-
-    function chooseAnswer(index, chosenButton) {
-      if (locked) return;
-      locked = true;
-      const item = questions[current];
-      const buttons = [...answersEl.children];
-      buttons.forEach(button => button.disabled = true);
-      buttons[item.answer].classList.add("correct");
-
-      if (index === item.answer) {
-        score++;
-        feedbackEl.textContent = "Correct! Your cosmic instincts are impeccable ✨";
-        feedbackEl.className = "feedback correct";
-      } else {
-        chosenButton.classList.add("wrong", "shake");
-        feedbackEl.textContent = `Not quite — the answer is ${item.options[item.answer]}.`;
-        feedbackEl.className = "feedback wrong";
-      }
-      scoreEl.textContent = `Score: ${score}`;
-      nextButton.textContent = current === questions.length - 1 ? "See your results →" : "Next mission →";
-      nextButton.classList.remove("hidden");
-    }
-
-    function showResults() {
-      quizView.classList.add("hidden");
-      resultsView.classList.remove("hidden");
-      document.getElementById("final-score").textContent = `${score} / ${questionsPerQuiz}`;
-      const emoji = score >= 9 ? "🌟" : score >= 6 ? "🚀" : score >= 3 ? "🪐" : "🌙";
-      const title = score >= 9 ? "Out-of-this-world!" : score >= 6 ? "Stellar work!" : score >= 3 ? "Nice orbit!" : "Keep exploring!";
-      const copy = score >= 9 ? "You’re ready to chart the unknown. The cosmos salutes you." : score >= 6 ? "A strong flight path! A little more stargazing and you’ll be unstoppable." : "Every explorer starts with a first launch. Try again and discover more.";
-      document.getElementById("result-emoji").textContent = emoji;
-      document.getElementById("result-title").textContent = title;
-      document.getElementById("result-copy").textContent = copy;
-    }
-
-    nextButton.addEventListener("click", () => {
-      if (current === questions.length - 1) showResults();
-      else { current++; renderQuestion(); }
-    });
-
-    document.getElementById("restart-button").addEventListener("click", () => {
-      resultsView.classList.add("hidden");
-      quizView.classList.remove("hidden");
-      startNewQuiz();
-    });
-
-    startNewQuiz();
+    const data={
+      Science:{icon:"🔬",desc:"Life, Earth, and the natural world.",facts:["Cells are the basic units of life.","Plants use photosynthesis to turn light into energy.","White blood cells help defend the body."],questions:[["Which organ pumps blood through the body?",["Lung","Heart","Kidney","Brain"],1],["Which vitamin can skin make from sunlight?",["A","C","D","K"],2],["Which blood cells fight infection?",["Red","White","Platelets","Plasma"],1]]},
+      Physics:{icon:"⚡",desc:"Forces, energy, waves, and motion.",facts:["Gravity attracts objects with mass.","Kinetic energy is the energy of motion.","Radiation can transfer heat through empty space."],questions:[["What is the unit of electric current?",["Volt","Watt","Ampere","Ohm"],2],["What energy does a moving object have?",["Potential","Kinetic","Chemical","Thermal"],1],["What instrument measures temperature?",["Barometer","Thermometer","Ammeter","Seismometer"],1]]},
+      Chemistry:{icon:"⚗️",desc:"Matter, reactions, and the elements.",facts:["Atoms are the smallest units of an element.","A pH below 7 is acidic.","Table salt is made of sodium and chlorine: NaCl."],questions:[["What is the chemical symbol for gold?",["Go","Gd","Au","Ag"],2],["What is the pH of a neutral substance?",["0","5","7","14"],2],["What is H₂O?",["Hydrogen peroxide","Water","Oxygen","Salt"],1]]},
+      Math:{icon:"➗",desc:"Numbers, patterns, and problem solving.",facts:["A right angle measures 90 degrees.","A dozen contains 12 items.","The square root of 81 is 9."],questions:[["What is 12 × 8?",["86","96","108","112"],1],["What is 3/4 as a decimal?",["0.25","0.34","0.75","1.25"],2],["What is 2⁵?",["10","16","25","32"],3]]},
+      Geography:{icon:"🌍",desc:"Places, people, maps, and our planet.",facts:["The Pacific is Earth's largest ocean.","The Equator divides the Northern and Southern Hemispheres.","Mount Everest is in the Himalayas."],questions:[["What is Earth's largest ocean?",["Atlantic","Indian","Pacific","Arctic"],2],["What is Japan's capital?",["Kyoto","Seoul","Tokyo","Beijing"],2],["Which continent contains the Sahara?",["Asia","Africa","Australia","South America"],1]]},
+      Coding:{icon:"💻",desc:"Algorithms, logic, and building with code.",facts:["An algorithm is a step-by-step solution.","Debugging means finding and fixing errors.","A variable stores a value for later use."],questions:[["What is a step-by-step solution called?",["Algorithm","Monitor","Folder","Pixel"],0],["What does debugging mean?",["Fixing errors","Designing a logo","Installing a monitor","Deleting files"],0],["What stores a value for later?",["Variable","Comment","Keyboard","Browser tab"],0]]},
+      "VS Code + Python":{icon:"🐍",desc:"Python programming and the VS Code toolkit.",facts:["Python files usually end in .py.","print() displays text in the terminal.","VS Code's integrated terminal runs commands inside the editor."],questions:[["Which extension is used for Python files?",[".java",".py",".html",".css"],1],["Which Python function displays text?",["show()","echo()","print()","write()"],2],["What does a virtual environment isolate?",["Project packages","Screen resolution","Images","Printers"],0]]},
+      Space:{icon:"🚀",desc:"Stars, planets, and the universe.",facts:["The Sun is the closest star to Earth.","A light-year measures distance.","Gravity keeps planets in orbit."],questions:[["Which planet is called the Red Planet?",["Venus","Mars","Jupiter","Mercury"],1],["What galaxy do we live in?",["Andromeda","Milky Way","Sombrero","Whirlpool"],1],["What keeps planets in orbit?",["Friction","Gravity","Magnetism","Light"],1]]}
+    };
+    const levels={Beginner:{need:0,mult:1,desc:"Build confidence with essentials."},Explorer:{need:2,mult:2,desc:"Connect ideas with trickier choices."},Genius:{need:3,mult:3,desc:"Master the challenge and earn the top badge."}};
+    let subject="Science",level="Beginner",round=[],index=0,score=0,locked=false;
+    const $=id=>document.getElementById(id);
+    function switchTab(tab){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===tab));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="rewards")renderBadges()}
+    document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();switchTab(el.dataset.tab)}));
+    function renderCategories(target){$(target).innerHTML=Object.entries(data).map(([name,item])=>`<button class="category ${name===subject?"selected":""}" data-subject="${name}"><span class="icon">${item.icon}</span><h3>${name}</h3><p>${item.desc}</p></button>`).join("");$(target).querySelectorAll("[data-subject]").forEach(b=>b.onclick=()=>{subject=b.dataset.subject;renderCategories("category-grid");renderFacts();renderCategories("quiz-categories")})}
+    function renderFacts(){$("facts").innerHTML=data[subject].facts.map((fact,i)=>`<article class="fact"><b>${i+1}</b><div><strong>${fact}</strong><p>Remember this for your next challenge.</p></div></article>`).join("")}
+    function renderLevels(){$("levels").innerHTML=Object.entries(levels).map(([name,item])=>`<button class="level ${name===level?"selected":""}" data-level="${name}"><h3>${name} ${name==="Beginner"?"🌱":name==="Explorer"?"🧭":"🧠"}</h3><p>${item.desc}</p></button>`).join("");$("levels").querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{level=b.dataset.level;renderLevels()})}
+    function begin(){round=[...data[subject].questions].sort(()=>Math.random()-.5);if(level!=="Beginner")round=round.concat(round.map(q=>q));round=round.slice(0,3);index=0;score=0;locked=false;$("setup").classList.add("hidden");$("result").classList.add("hidden");$("quiz-play").classList.remove("hidden");renderQuestion()}
+    function renderQuestion(){const q=round[index];$("counter").textContent=`Question ${index+1} of ${round.length}`;$("quiz-score").textContent=`Score: ${score}`;$("fill").style.width=`${(index+1)/round.length*100}%`;$("quiz-subject").textContent=subject;$("question").textContent=q[0];$("feedback").textContent="";$("feedback").className="feedback";$("next").classList.add("hidden");$("choices").innerHTML=q[1].map((a,i)=>`<button class="choice" data-answer="${i}">${a}</button>`).join("");$("choices").querySelectorAll("button").forEach(b=>b.onclick=()=>answer(+b.dataset.answer,b))}
+    function answer(choice,button){if(locked)return;locked=true;const q=round[index];$("choices").querySelectorAll("button").forEach(b=>b.disabled=true);$("choices").children[q[2]].classList.add("correct");if(choice===q[2]){score++;$("feedback").textContent="Correct! Brilliant thinking ✨";$("feedback").className="feedback good"}else{button.classList.add("wrong");$("feedback").textContent=`Not quite — the answer is ${q[1][q[2]]}.`;$("feedback").className="feedback bad"}$("quiz-score").textContent=`Score: ${score}`;$("next").textContent=index===round.length-1?"Claim reward →":"Next question →";$("next").classList.remove("hidden")}
+    function finish(){const perfect=score===round.length;const key=`${subject}-${level}`;let badges=JSON.parse(localStorage.getItem("quizBadges")||"[]");if(perfect&&!badges.includes(key)){badges.push(key);localStorage.setItem("quizBadges",JSON.stringify(badges))}$("quiz-play").classList.add("hidden");$("result").classList.remove("hidden");$("result-icon").textContent=perfect?(level==="Genius"?"👑":"🏆"):"🌟";$("result-title").textContent=perfect?`${level} ${subject} complete!`:"Great effort — keep learning!";$("result-copy").textContent=perfect?`You earned the ${level} ${subject} badge. Your score: ${score}/${round.length}.`:`You scored ${score}/${round.length}. Review the facts and try this level again.`}
+    function renderBadges(){const badges=JSON.parse(localStorage.getItem("quizBadges")||"[]");$("badge-list").innerHTML=badges.length?badges.map(b=>`<span class="badge">🏅 ${b.replace("-", " · ")}</span>`).join(""):`<p class="empty">No badges yet. Complete a perfect level to earn your first one!</p>`}
+    $("begin").onclick=begin;$("next").onclick=()=>index===round.length-1?finish():(index++,locked=false,renderQuestion());$("again").onclick=()=>{$("result").classList.add("hidden");$("setup").classList.remove("hidden");renderLevels()};renderCategories("category-grid");renderCategories("quiz-categories");renderFacts();renderLevels();
   </script>
 </body>
 </html>
