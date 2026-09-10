@@ -107,8 +107,10 @@
     function renderFacts(){$("facts").innerHTML=data[subject].facts.map((fact,i)=>`<article class="fact"><b>${i+1}</b><div><strong>${fact}</strong><p>Remember this for your next challenge.</p></div></article>`).join("")}
     function renderLevels(){$("levels").innerHTML=Object.entries(levels).map(([name,item])=>`<button class="level ${name===level?"selected":""}" data-level="${name}"><h3>${name} ${name==="Beginner"?"🌱":name==="Explorer"?"🧭":"🧠"}</h3><p>${item.desc}</p></button>`).join("");$("levels").querySelectorAll("[data-level]").forEach(b=>b.onclick=()=>{level=b.dataset.level;renderLevels()})}
     function begin(){
-      const base=[...data[subject].questions,...extras[subject]];
-      const pool=level==="Beginner"?base:[...advanced[subject][level],...base];
+      const beginnerPool=[...data[subject].questions,...extras[subject].slice(0,7)];
+      const explorerPool=[...advanced[subject].Explorer,...extras[subject].slice(3,10)];
+      const geniusPool=[...advanced[subject].Genius,...extras[subject].slice(9,16)];
+      const pool=level==="Beginner"?beginnerPool:level==="Explorer"?explorerPool:geniusPool;
       const historyKey=`quiz-seen-${subject}-${level}`;
       let seen=JSON.parse(localStorage.getItem(historyKey)||"[]");
       let unseen=pool.filter(item=>!seen.includes(item[0]));
