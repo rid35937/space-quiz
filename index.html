@@ -23,6 +23,7 @@
     <section id="home" class="panel view active">
       <p class="eyebrow">Think. Learn. Level up.</p><h1>Curiosity is your superpower.</h1><p class="lead">Explore smart facts, choose your subject, and take a quiz that gets more challenging as you grow. Every completed level earns a reward.</p><button class="button" data-tab="learn">Start exploring →</button>
       <div class="stats"><div class="stat"><strong>8</strong><span>Subjects to explore</span></div><div class="stat"><strong>3</strong><span>Difficulty levels</span></div><div class="stat"><strong>🏆</strong><span>Rewards to unlock</span></div></div>
+      <article class="fact" id="word-card"><b>📖</b><div><strong>Word of the day</strong><p id="word-of-day"></p></div></article>
     </section>
 
     <section id="learn" class="panel view">
@@ -96,6 +97,10 @@
     const levels={Beginner:{need:0,mult:1,desc:"Build confidence with essentials."},Explorer:{need:2,mult:2,desc:"Connect ideas with trickier choices."},Genius:{need:3,mult:3,desc:"Master the challenge and earn the top badge."}};
     let subject="Science",level="Beginner",round=[],index=0,score=0,locked=false;
     const $=id=>document.getElementById(id);
+    const words=[["Curiosity","A strong desire to learn or know something."],["Resilient","Able to recover and keep going after difficulty."],["Illuminate","To make something clearer or easier to understand."],["Astute","Quick to notice and understand things."],["Ponder","To think carefully about something."],["Eloquent","Using language clearly and effectively."],["Tenacious","Continuing firmly despite obstacles."],["Insight","A deep and useful understanding of something."]];
+    const dayNumber=Math.floor(Date.now()/86400000);
+    const todayWord=words[dayNumber%words.length];
+    $("word-of-day").innerHTML=`<strong>${todayWord[0]}</strong> — ${todayWord[1]}`;
     function switchTab(tab){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===tab));document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));if(tab==="rewards")renderBadges()}
     document.querySelectorAll("[data-tab]").forEach(el=>el.addEventListener("click",e=>{e.preventDefault();switchTab(el.dataset.tab)}));
     function renderCategories(target){$(target).innerHTML=Object.entries(data).map(([name,item])=>`<button class="category ${name===subject?"selected":""}" data-subject="${name}"><span class="icon">${item.icon}</span><h3>${name}</h3><p>${item.desc}</p></button>`).join("");$(target).querySelectorAll("[data-subject]").forEach(b=>b.onclick=()=>{subject=b.dataset.subject;renderCategories("category-grid");renderFacts();renderCategories("quiz-categories")})}
